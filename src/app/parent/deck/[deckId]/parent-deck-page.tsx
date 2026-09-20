@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/empty-state"
 import { FrontOnlyList } from "@/components/front-only-list"
 import { ParentGate } from "@/components/parent-gate"
 import { ErrorScreen } from "@/components/error-screen"
+import { WordImportDialog } from "@/components/word-import-dialog"
 import { WordNotebook } from "@/components/word-notebook"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,6 +35,7 @@ export function ParentDeckPage({
   const [draftTitle, setDraftTitle] = useState<string | null>(null)
   const [form, setForm] = useState<Flashcard | "new" | null>(null)
   const [openCard, setOpenCard] = useState<Flashcard | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
   const title = draftTitle ?? deck?.title ?? ""
   const vocab = isVocabularyDeck(cards)
 
@@ -89,13 +91,20 @@ export function ParentDeckPage({
             cards={cards}
             onOpen={setOpenCard}
             extra={
-              <div className="flex justify-end">
+              <div className="flex flex-wrap justify-end gap-2">
                 <Button
+                  className="h-12 px-5 text-base"
+                  onClick={() => setImportOpen(true)}
+                >
+                  <Plus className="size-4" />
+                  Add words
+                </Button>
+                <Button
+                  variant="outline"
                   className="h-12 px-5 text-base"
                   onClick={() => setForm("new")}
                 >
-                  <Plus className="size-4" />
-                  Add card
+                  Simple card
                 </Button>
               </div>
             }
@@ -176,6 +185,13 @@ export function ParentDeckPage({
             toast.success("Card added to the year deck")
           }
         }}
+      />
+
+      <WordImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        deckId={deck.id}
+        kidId={null}
       />
     </ParentGate>
   )

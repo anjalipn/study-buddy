@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/empty-state"
 import { ErrorScreen } from "@/components/error-screen"
 import { FrontOnlyList } from "@/components/front-only-list"
 import { StoreReady } from "@/components/store-ready"
+import { WordImportDialog } from "@/components/word-import-dialog"
 import { WordNotebook } from "@/components/word-notebook"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,6 +41,7 @@ export function KidDeckPage({
   const subject = deck ? getSubject(data, deck.subjectId) : undefined
   const [form, setForm] = useState<Flashcard | "new" | null>(null)
   const [openCard, setOpenCard] = useState<Flashcard | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
 
   useEffect(() => {
     if (kid) loginKid(kid.id)
@@ -97,13 +99,20 @@ export function KidDeckPage({
             cards={notebookCards}
             onOpen={setOpenCard}
             extra={
-              <div className="flex justify-end">
+              <div className="flex flex-wrap justify-end gap-2">
                 <Button
+                  className="h-12 px-5 text-base"
+                  onClick={() => setImportOpen(true)}
+                >
+                  <Plus className="size-4" />
+                  Add words
+                </Button>
+                <Button
+                  variant="outline"
                   className="h-12 px-5 text-base"
                   onClick={() => setForm("new")}
                 >
-                  <Plus className="size-4" />
-                  Add my card
+                  Simple card
                 </Button>
               </div>
             }
@@ -200,6 +209,13 @@ export function KidDeckPage({
             toast.success("Your card was added")
           }
         }}
+      />
+
+      <WordImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        deckId={deck.id}
+        kidId={kid.id}
       />
     </StoreReady>
   )

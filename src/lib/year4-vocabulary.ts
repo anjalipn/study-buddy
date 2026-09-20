@@ -8,7 +8,7 @@ type WordInput = {
   details: WordDetails
 }
 
-function formatWordBack(details: WordDetails): string {
+export function formatWordBack(details: WordDetails): string {
   const lines: string[] = [
     details.partsOfSpeech.join(", "),
     `Level ${details.level} (${details.band})`,

@@ -28,7 +28,9 @@ import type {
   SchoolYear,
   Session,
   Subject,
+  WordDetails,
 } from "@/lib/types"
+import { formatWordBack } from "@/lib/year4-vocabulary"
 
 type StoreStatus = "loading" | "ready" | "error"
 
@@ -41,6 +43,14 @@ type KidInput = {
 type CardInput = {
   front: string
   back: string
+  word?: WordDetails
+}
+
+type WordCardInput = {
+  deckId: string
+  kidId: string | null
+  term: string
+  details: WordDetails
 }
 
 type StoreValue = {
@@ -62,6 +72,7 @@ type StoreValue = {
   deleteSubject: (id: string) => void
   updateDeckTitle: (id: string, title: string) => void
   addCard: (input: CardInput & { deckId: string; kidId: string | null }) => Flashcard
+  addWordCards: (inputs: WordCardInput[]) => { added: number; skipped: number }
   updateCard: (id: string, input: CardInput) => void
   deleteCard: (id: string) => void
   markCard: (kidId: string, cardId: string, status: "know" | "learning") => void
@@ -225,16 +236,50 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ),
         }))
       },
-      addCard: ({ deckId, kidId, front, back }) => {
+      addCard: ({ deckId, kidId, front, back, word }) => {
         const card: Flashcard = {
           id: createId("card"),
           deckId,
           kidId,
           front,
           back,
+          word,
         }
         update((current) => ({ ...current, cards: [...current.cards, card] }))
         return card
+      },
+      addWordCards: (inputs) => {
+        const seen = new Set(
+          data.cards.map(
+            (card) =>
+              `${card.deckId}:${card.kidId ?? "year"}:${card.front.toLowerCase()}`,
+          ),
+        )
+        const next: Flashcard[] = []
+        let skipped = 0
+        for (const input of inputs) {
+          const key = `${input.deckId}:${input.kidId ?? "year"}:${input.term.toLowerCase()}`
+          if (seen.has(key)) {
+            skipped += 1
+            continue
+          }
+          seen.add(key)
+          next.push({
+            id: createId("card"),
+            deckId: input.deckId,
+            kidId: input.kidId,
+            front: input.term,
+            back: formatWordBack(input.details),
+            word: input.details,
+          })
+        }
+        if (next.length > 0) {
+          update((current) => ({
+            ...current,
+            cards: [...current.cards, ...next],
+          }))
+        }
+        return { added: next.length, skipped }
       },
       updateCard: (id, input) => {
         update((current) => ({
