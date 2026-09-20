@@ -1,5 +1,10 @@
 import { createSeedData } from "@/lib/seed"
 import type { AppData, Session } from "@/lib/types"
+import {
+  YEAR_4_VOCABULARY_CARDS,
+  YEAR_4_VOCAB_DECK_ID,
+  YEAR_4_VOCAB_TITLE,
+} from "@/lib/year4-vocabulary"
 
 export const DATA_KEY = "study-buddy-v1"
 export const SESSION_KEY = "study-buddy-session"
@@ -40,7 +45,29 @@ export function loadData(): AppData {
     throw new Error(STORAGE_ERROR)
   }
 
-  return parsed
+  return mergeYear4Vocabulary(parsed)
+}
+
+function mergeYear4Vocabulary(data: AppData): AppData {
+  const decks = data.decks.map((deck) =>
+    deck.id === YEAR_4_VOCAB_DECK_ID
+      ? { ...deck, title: YEAR_4_VOCAB_TITLE }
+      : deck,
+  )
+
+  const cards = [...data.cards]
+  for (const word of YEAR_4_VOCABULARY_CARDS) {
+    const index = cards.findIndex((card) => card.id === word.id)
+    if (index === -1) {
+      cards.push(word)
+    } else if (cards[index].kidId === null) {
+      cards[index] = word
+    }
+  }
+
+  const next = { ...data, decks, cards }
+  window.localStorage.setItem(DATA_KEY, JSON.stringify(next))
+  return next
 }
 
 export function saveData(data: AppData): void {

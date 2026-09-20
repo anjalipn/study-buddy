@@ -1,4 +1,8 @@
 import type { AppData, Flashcard } from "@/lib/types"
+import {
+  YEAR_4_VOCABULARY_CARDS,
+  YEAR_4_VOCAB_TITLE,
+} from "@/lib/year4-vocabulary"
 
 function yearCards(
   deckId: string,
@@ -33,7 +37,9 @@ export function createSeedData(): AppData {
               ? "2, 5 and 10 times tables"
               : year === 2 && subject.id === "subject-reading"
                 ? "Exception words"
-                : `Year ${year} ${subject.name}`,
+                : year === 4 && subject.id === "subject-reading"
+                  ? YEAR_4_VOCAB_TITLE
+                  : `Year ${year} ${subject.name}`,
     })),
   )
 
@@ -86,6 +92,7 @@ export function createSeedData(): AppData {
       ["many", "There are many books."],
       ["children", "The children lined up."],
     ]),
+    ...YEAR_4_VOCABULARY_CARDS,
   ]
 
   return {

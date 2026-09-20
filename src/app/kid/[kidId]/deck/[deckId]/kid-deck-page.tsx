@@ -22,6 +22,7 @@ import {
   studyCards,
   yearLabel,
 } from "@/lib/selectors"
+import { cardPreview } from "@/lib/card-preview"
 import { useStore } from "@/lib/store"
 import type { Flashcard } from "@/lib/types"
 
@@ -101,7 +102,7 @@ export function KidDeckPage({
                     <CardContent className="px-5 py-1">
                       <p className="text-lg font-medium">{card.front}</p>
                       <p className="text-sm text-muted-foreground">
-                        {card.back}
+                        {cardPreview(card.back)}
                       </p>
                     </CardContent>
                   </Card>

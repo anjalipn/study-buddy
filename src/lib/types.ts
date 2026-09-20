@@ -32,6 +32,22 @@ export type Deck = {
   title: string
 }
 
+export type WordDetails = {
+  partsOfSpeech: string[]
+  level: string
+  band: string
+  theme?: {
+    name: string
+    values: string[]
+  }
+  definitions: string[]
+  usageContext?: string
+  synonyms: string[]
+  antonyms: string[]
+  additionalInfo?: string
+  examples: string[]
+}
+
 export type Flashcard = {
   id: string
   deckId: string
@@ -39,6 +55,7 @@ export type Flashcard = {
   kidId: string | null
   front: string
   back: string
+  word?: WordDetails
 }
 
 export type ProgressEntry = {

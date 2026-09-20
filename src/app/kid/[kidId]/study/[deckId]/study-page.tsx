@@ -139,6 +139,7 @@ export function StudyPage({
             <FlipCard
               front={current.front}
               back={current.back}
+              word={current.word}
               flipped={flipped}
               onFlip={() => setFlipped((value) => !value)}
             />

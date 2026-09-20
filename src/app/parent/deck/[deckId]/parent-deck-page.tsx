@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getDeck, getSubject, sharedCards, yearLabel } from "@/lib/selectors"
+import { cardPreview } from "@/lib/card-preview"
 import { useStore } from "@/lib/store"
 import type { Flashcard } from "@/lib/types"
 
@@ -107,7 +108,7 @@ export function ParentDeckPage({
                         Back
                       </p>
                       <p className="text-base text-muted-foreground">
-                        {card.back}
+                        {cardPreview(card.back)}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
