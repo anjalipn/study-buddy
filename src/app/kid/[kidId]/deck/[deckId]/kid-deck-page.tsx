@@ -22,6 +22,7 @@ import {
   studyCards,
   yearLabel,
 } from "@/lib/selectors"
+import { VocabularyCard } from "@/components/vocabulary-card"
 import { cardPreview } from "@/lib/card-preview"
 import { useStore } from "@/lib/store"
 import type { Flashcard } from "@/lib/types"
@@ -98,14 +99,20 @@ export function KidDeckPage({
             <ul className="flex flex-col gap-3">
               {shared.map((card) => (
                 <li key={card.id}>
-                  <Card>
-                    <CardContent className="px-5 py-1">
-                      <p className="text-lg font-medium">{card.front}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {cardPreview(card.back)}
-                      </p>
-                    </CardContent>
-                  </Card>
+                  {card.word ? (
+                    <div className="overflow-hidden rounded-2xl ring-1 ring-foreground/10">
+                      <VocabularyCard term={card.front} word={card.word} />
+                    </div>
+                  ) : (
+                    <Card>
+                      <CardContent className="px-5 py-1">
+                        <p className="text-lg font-medium">{card.front}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {cardPreview(card.back)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
                 </li>
               ))}
             </ul>

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 
+import { VocabularyCard } from "@/components/vocabulary-card"
 import { cn } from "@/lib/utils"
 import type { WordDetails } from "@/lib/types"
 
@@ -34,12 +35,13 @@ export function FlipCard({
         <div
           className={cn(
             "relative min-h-[280px] w-full rounded-3xl transition-transform duration-500 [transform-style:preserve-3d] sm:min-h-[360px]",
-            detailed && "min-h-[420px] sm:min-h-[460px]",
+            word && "min-h-[520px] sm:min-h-[560px]",
+            detailed && !word && "min-h-[420px] sm:min-h-[460px]",
             flipped && "[transform:rotateY(180deg)]",
           )}
         >
-          <CardFace label="Front" detailed={false}>
-            <p className="flex flex-1 items-center justify-center text-center font-heading text-3xl leading-snug font-semibold sm:text-4xl">
+          <CardFace label={word ? undefined : "Front"} detailed={false}>
+            <p className="flex flex-1 items-center justify-center text-center font-heading text-3xl leading-snug font-semibold sm:text-5xl">
               {front}
             </p>
             {word ? (
@@ -48,9 +50,14 @@ export function FlipCard({
               </p>
             ) : null}
           </CardFace>
-          <CardFace label="Back" detailed={detailed} back>
+          <CardFace
+            label={word ? undefined : "Back"}
+            detailed={detailed}
+            back
+            flush={Boolean(word)}
+          >
             {word ? (
-              <WordBack word={word} />
+              <VocabularyCard term={front} word={word} />
             ) : (
               <p
                 className={cn(
@@ -78,74 +85,31 @@ function CardFace({
   children,
   back = false,
   detailed,
+  flush = false,
 }: {
-  label: string
+  label?: string
   children: ReactNode
   back?: boolean
   detailed: boolean
+  flush?: boolean
 }) {
   return (
     <div
       className={cn(
-        "absolute inset-0 flex flex-col rounded-3xl bg-card px-5 py-6 shadow-lg ring-1 ring-foreground/10 [backface-visibility:hidden] sm:px-6 sm:py-8",
+        "absolute inset-0 flex flex-col rounded-3xl bg-card shadow-lg ring-1 ring-foreground/10 [backface-visibility:hidden]",
+        flush ? "overflow-y-auto p-0" : "px-5 py-6 sm:px-6 sm:py-8",
         back && "[transform:rotateY(180deg)]",
         detailed && "overflow-y-auto",
       )}
     >
-      <span className="text-sm font-medium tracking-wide text-primary uppercase">
-        {label}
-      </span>
-      <div className="mt-4 flex flex-1 flex-col gap-3">{children}</div>
-    </div>
-  )
-}
-
-function WordBack({ word }: { word: WordDetails }) {
-  return (
-    <div className="flex flex-col gap-4 text-left text-sm leading-6">
-      <p className="text-muted-foreground">
-        {word.partsOfSpeech.join(", ")} · Level {word.level} ({word.band})
-        {word.theme
-          ? ` · ${word.theme.name}: ${word.theme.values.join(", ")}`
-          : ""}
-      </p>
-      <section>
-        <h3 className="font-semibold">Definitions</h3>
-        <ul className="mt-1 list-disc space-y-1 pl-5">
-          {word.definitions.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-      {word.usageContext ? (
-        <section>
-          <h3 className="font-semibold">Usage</h3>
-          <p className="mt-1">{word.usageContext}</p>
-        </section>
+      {label ? (
+        <span className="px-0 text-sm font-medium tracking-wide text-primary uppercase">
+          {label}
+        </span>
       ) : null}
-      {word.synonyms.length > 0 ? (
-        <section>
-          <h3 className="font-semibold">Synonyms</h3>
-          <p className="mt-1">{word.synonyms.join(", ")}</p>
-        </section>
-      ) : null}
-      {word.antonyms.length > 0 ? (
-        <section>
-          <h3 className="font-semibold">Antonyms</h3>
-          <p className="mt-1">{word.antonyms.join(", ")}</p>
-        </section>
-      ) : null}
-      {word.additionalInfo ? <p>{word.additionalInfo}</p> : null}
-      {word.examples.length > 0 ? (
-        <section>
-          <h3 className="font-semibold">Examples</h3>
-          <ul className="mt-1 list-disc space-y-1 pl-5">
-            {word.examples.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <div className={cn("flex flex-1 flex-col", !flush && "mt-4 gap-3")}>
+        {children}
+      </div>
     </div>
   )
 }

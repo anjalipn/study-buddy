@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getDeck, getSubject, sharedCards, yearLabel } from "@/lib/selectors"
+import { VocabularyCard } from "@/components/vocabulary-card"
 import { cardPreview } from "@/lib/card-preview"
 import { useStore } from "@/lib/store"
 import type { Flashcard } from "@/lib/types"
@@ -98,19 +99,27 @@ export function ParentDeckPage({
             {cards.map((card) => (
               <li key={card.id}>
                 <Card>
-                  <CardContent className="flex flex-col gap-4 px-5 py-0 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                        Front
-                      </p>
-                      <p className="text-lg font-medium">{card.front}</p>
-                      <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                        Back
-                      </p>
-                      <p className="text-base text-muted-foreground">
-                        {cardPreview(card.back)}
-                      </p>
-                    </div>
+                  <CardContent className="flex flex-col gap-4 px-5 py-0">
+                    {card.word ? (
+                      <VocabularyCard
+                        term={card.front}
+                        word={card.word}
+                        className="bg-transparent px-0 py-2"
+                      />
+                    ) : (
+                      <div>
+                        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                          Front
+                        </p>
+                        <p className="text-lg font-medium">{card.front}</p>
+                        <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                          Back
+                        </p>
+                        <p className="text-base text-muted-foreground">
+                          {cardPreview(card.back)}
+                        </p>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       <Button
                         variant="outline"

@@ -105,7 +105,7 @@ export function StudyPage({
 
   return (
     <StoreReady>
-      <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 py-5 sm:px-6">
+      <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 py-5 sm:max-w-5xl sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <Button variant="ghost" asChild className="h-11 -ml-2 px-2 text-base">
             <Link href={`/kid/${kid.id}`}>Close</Link>
