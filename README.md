@@ -40,3 +40,5 @@ If you forget the PIN, reset from parent settings while signed in, or clear `pin
 ## Stack
 
 Next.js, TypeScript, Tailwind CSS, shadcn/ui. Optional Neon Postgres via Vercel.
+
+Project memory for later sessions: [CLAUDE.md](./CLAUDE.md). Family user guide (GitHub Pages): [docs/index.html](./docs/index.html).

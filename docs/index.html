@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Study Buddy — a simple guide for families</title>
+    <meta
+      name="description"
+      content="How parents and children use Study Buddy: flashcards for UK Years 1–4, weekly vocabulary, and study on any browser."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,650&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f6f1e8;
+        --ink: #243044;
+        --muted: #5c6573;
+        --card: #fffcf7;
+        --line: #e6dfd2;
+        --teal: #2f6f7a;
+        --teal-soft: #e4f1f3;
+        --amber: #fff4d6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--bg);
+        font-family: Figtree, system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: Fraunces, Georgia, serif;
+        font-weight: 650;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+      .wrap {
+        width: min(920px, calc(100% - 2rem));
+        margin-inline: auto;
+      }
+      header {
+        padding: 3rem 0 2rem;
+      }
+      .eyebrow {
+        color: var(--teal);
+        font-weight: 700;
+        font-size: 0.95rem;
+      }
+      h1 {
+        margin: 0.35rem 0 0.75rem;
+        font-size: clamp(2.1rem, 5vw, 3.4rem);
+      }
+      .lede {
+        max-width: 40rem;
+        color: var(--muted);
+        font-size: 1.125rem;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem 1.1rem;
+        margin: 1.5rem 0 0;
+      }
+      nav a {
+        color: var(--teal);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      section {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 1.25rem;
+        padding: 1.4rem 1.5rem 1.5rem;
+        margin-bottom: 1rem;
+      }
+      h2 {
+        margin: 0 0 0.7rem;
+        font-size: 1.55rem;
+      }
+      h3 {
+        margin: 1.1rem 0 0.35rem;
+        font-size: 1.15rem;
+      }
+      ol,
+      ul {
+        margin: 0.4rem 0 0;
+        padding-left: 1.2rem;
+      }
+      li + li {
+        margin-top: 0.35rem;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+      }
+      @media (min-width: 720px) {
+        .grid.two {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .note {
+        background: var(--teal-soft);
+        border-radius: 0.9rem;
+        padding: 0.9rem 1rem;
+        margin-top: 1rem;
+      }
+      .warn {
+        background: var(--amber);
+      }
+      code {
+        font-size: 0.92em;
+        background: #efe8dc;
+        padding: 0.1em 0.35em;
+        border-radius: 0.3rem;
+      }
+      footer {
+        padding: 2rem 0 3rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="eyebrow">Study Buddy</p>
+        <h1>Flashcards for Years 1–4, made for home.</h1>
+        <p class="lede">
+          A parent sets up the family. Each child picks their name and practises
+          maths, reading, and Year 4 vocabulary — including this week’s words,
+          last week, and older weeks.
+        </p>
+        <nav aria-label="On this page">
+          <a href="#parent">For parents</a>
+          <a href="#child">For children</a>
+          <a href="#vocab">Vocabulary</a>
+          <a href="#weekly">Weekly words</a>
+          <a href="#devices">Phones and tablets</a>
+        </nav>
+      </header>
+
+      <section id="parent">
+        <h2>For parents</h2>
+        <ol>
+          <li>Open Study Buddy in the browser and set a four-digit family PIN.</li>
+          <li>Add each child: first name, school year (1–4), and an avatar.</li>
+          <li>
+            Shared decks are already there for Year 1–2 Maths and Reading, and
+            Year 4 Vocabulary.
+          </li>
+          <li>
+            Open a year deck to add or edit cards. On Year 4 Vocabulary, use
+            <strong>Add words</strong> to paste a word card from XL Education
+            (word, part of speech, level, definitions, examples).
+          </li>
+        </ol>
+        <p class="note">
+          Children never type the PIN after the device is unlocked. They only
+          tap their name. Keep the PIN for grown-ups.
+        </p>
+      </section>
+
+      <div class="grid two">
+        <section id="child">
+          <h2>For children</h2>
+          <ol>
+            <li>Tap your name on the home screen.</li>
+            <li>Open a deck and choose <strong>Study</strong> or <strong>Cards</strong>.</li>
+            <li>Flip the card, then tap <strong>I know this</strong> or <strong>Still learning</strong>.</li>
+            <li>
+              For vocabulary, open <strong>Weekly words</strong> to revise or
+              quiz this week and previous weeks.
+            </li>
+          </ol>
+        </section>
+        <section id="vocab">
+          <h2>Year 4 vocabulary</h2>
+          <p>
+            Word cards show the front first. Tap a word to see definitions,
+            synonyms, antonyms, and examples. Letter tabs and search help you
+            jump through the list like a notebook.
+          </p>
+          <p>
+            Every word stores the day it was added, so weekly revise and quiz
+            stay organised.
+          </p>
+        </section>
+      </div>
+
+      <section id="weekly">
+        <h2>Weekly words</h2>
+        <p>
+          Words are grouped from <strong>Sunday to Saturday</strong>. A word
+          added on any of those days counts for that week. You will see:
+        </p>
+        <ul>
+          <li><strong>This week</strong> — new words</li>
+          <li><strong>Last week</strong> — last Sunday to Saturday</li>
+          <li><strong>Older weeks</strong> — anything before that</li>
+        </ul>
+        <p>
+          Tap a word to read it. Use <strong>Revise this week</strong> to flip
+          cards, or <strong>Quiz this week</strong> for a short multiple-choice
+          quiz.
+        </p>
+      </section>
+
+      <section id="devices">
+        <h2>Using it on more than one device</h2>
+        <p>
+          The live app is the Vercel website (not this GitHub page). On each
+          tablet or computer, open that site and enter the family PIN once.
+          After that, children pick their name. Words saved in the shared
+          database appear on every signed-in device.
+        </p>
+        <p class="note warn">
+          If the home screen says the copy is “this browser only”, the shared
+          database is not connected. A parent needs to check Vercel: both
+          <code>DATABASE_URL</code> and <code>SESSION_SECRET</code> on
+          Production, then redeploy.
+        </p>
+      </section>
+
+      <footer>
+        <p>
+          Study Buddy is a small family app for UK primary years. This page is
+          a guide only. The working app is the deployed website.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
