@@ -5,19 +5,20 @@ import { toast } from "sonner"
 import { Pencil, Plus } from "lucide-react"
 
 import { AppShell } from "@/components/app-shell"
+import { CardDetailDialog } from "@/components/card-detail-dialog"
 import { CardFormDialog } from "@/components/card-form-dialog"
 import { ConfirmDelete } from "@/components/confirm-delete"
 import { EmptyState } from "@/components/empty-state"
+import { FrontOnlyList } from "@/components/front-only-list"
 import { ParentGate } from "@/components/parent-gate"
 import { ErrorScreen } from "@/components/error-screen"
+import { WordNotebook } from "@/components/word-notebook"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getDeck, getSubject, sharedCards, yearLabel } from "@/lib/selectors"
-import { VocabularyCard } from "@/components/vocabulary-card"
-import { cardPreview } from "@/lib/card-preview"
 import { useStore } from "@/lib/store"
+import { isVocabularyDeck } from "@/lib/word-index"
 import type { Flashcard } from "@/lib/types"
 
 export function ParentDeckPage({
@@ -32,7 +33,9 @@ export function ParentDeckPage({
   const cards = deck ? sharedCards(data, deck.id) : []
   const [draftTitle, setDraftTitle] = useState<string | null>(null)
   const [form, setForm] = useState<Flashcard | "new" | null>(null)
+  const [openCard, setOpenCard] = useState<Flashcard | null>(null)
   const title = draftTitle ?? deck?.title ?? ""
+  const vocab = isVocabularyDeck(cards)
 
   if (!deck || !subject) {
     return (
@@ -81,71 +84,74 @@ export function ParentDeckPage({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-heading text-xl font-semibold">Year cards</h2>
-          <Button className="h-12 px-5 text-base" onClick={() => setForm("new")}>
-            <Plus className="size-4" />
-            Add card
-          </Button>
-        </div>
-
-        {cards.length === 0 ? (
-          <EmptyState
-            title="This deck is empty"
-            description={`Add shared cards for ${yearLabel(deck.year)} ${subject.name}. Children in that year will see them, and can still add their own cards on top.`}
+        {vocab ? (
+          <WordNotebook
+            cards={cards}
+            onOpen={setOpenCard}
+            extra={
+              <div className="flex justify-end">
+                <Button
+                  className="h-12 px-5 text-base"
+                  onClick={() => setForm("new")}
+                >
+                  <Plus className="size-4" />
+                  Add card
+                </Button>
+              </div>
+            }
           />
         ) : (
-          <ul className="flex flex-col gap-3">
-            {cards.map((card) => (
-              <li key={card.id}>
-                <Card>
-                  <CardContent className="flex flex-col gap-4 px-5 py-0">
-                    {card.word ? (
-                      <VocabularyCard
-                        term={card.front}
-                        word={card.word}
-                        className="bg-transparent px-0 py-2"
-                      />
-                    ) : (
-                      <div>
-                        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                          Front
-                        </p>
-                        <p className="text-lg font-medium">{card.front}</p>
-                        <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                          Back
-                        </p>
-                        <p className="text-base text-muted-foreground">
-                          {cardPreview(card.back)}
-                        </p>
-                      </div>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        className="h-11"
-                        onClick={() => setForm(card)}
-                      >
-                        <Pencil className="size-4" />
-                        Edit
-                      </Button>
-                      <ConfirmDelete
-                        triggerLabel="Delete"
-                        title="Delete this card?"
-                        description="Children will no longer see it in this year deck."
-                        onConfirm={() => {
-                          deleteCard(card.id)
-                          toast.success("Card deleted")
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </li>
-            ))}
-          </ul>
+          <>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-heading text-xl font-semibold">Year cards</h2>
+              <Button
+                className="h-12 px-5 text-base"
+                onClick={() => setForm("new")}
+              >
+                <Plus className="size-4" />
+                Add card
+              </Button>
+            </div>
+            {cards.length === 0 ? (
+              <EmptyState
+                title="This deck is empty"
+                description={`Add shared cards for ${yearLabel(deck.year)} ${subject.name}. Children in that year will see them, and can still add their own cards on top.`}
+              />
+            ) : (
+              <FrontOnlyList cards={cards} onOpen={setOpenCard} />
+            )}
+          </>
         )}
       </AppShell>
+
+      <CardDetailDialog
+        card={openCard}
+        onClose={() => setOpenCard(null)}
+        actions={
+          openCard ? (
+            <>
+              <Button
+                variant="outline"
+                className="h-11"
+                onClick={() => setForm(openCard)}
+              >
+                <Pencil className="size-4" />
+                Edit
+              </Button>
+              <ConfirmDelete
+                triggerLabel="Delete"
+                title="Delete this card?"
+                description="Children will no longer see it in this year deck."
+                onConfirm={() => {
+                  deleteCard(openCard.id)
+                  setOpenCard(null)
+                  toast.success("Card deleted")
+                }}
+              />
+            </>
+          ) : undefined
+        }
+      />
 
       <CardFormDialog
         key={form === "new" ? "new" : form?.id}
@@ -160,6 +166,11 @@ export function ParentDeckPage({
           if (form && form !== "new") {
             updateCard(form.id, input)
             toast.success("Card updated")
+            setOpenCard((current) =>
+              current && current.id === form.id
+                ? { ...current, ...input }
+                : current,
+            )
           } else {
             addCard({ ...input, deckId: deck.id, kidId: null })
             toast.success("Card added to the year deck")
