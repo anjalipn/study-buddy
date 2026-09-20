@@ -57,10 +57,10 @@ export function WordNotebook({
       </div>
       {extra}
 
-      <div className="flex gap-0">
+      <div className="flex min-h-[40rem] items-stretch gap-0 sm:min-h-[44rem]">
         <nav
           aria-label="Words by letter"
-          className="sticky top-4 hidden w-11 shrink-0 flex-col md:flex"
+          className="flex w-8 shrink-0 flex-col sm:w-10"
         >
           {ALPHABET.map((item) => {
             const active = !searching && letter === item
@@ -74,9 +74,9 @@ export function WordNotebook({
                   setLetter(item)
                 }}
                 className={cn(
-                  "-mb-px flex h-7 items-center justify-center rounded-l-md text-xs font-bold text-white shadow-sm",
-                  active ? "z-10 w-11 text-sm" : "w-9 opacity-85 hover:opacity-100",
-                  !hasWords && "opacity-40",
+                  "flex min-h-0 flex-1 items-center justify-center rounded-l-md text-[10px] font-bold text-white sm:text-xs",
+                  active ? "z-10 -mr-0.5 shadow-md" : "opacity-80 hover:opacity-100",
+                  !hasWords && "opacity-35",
                 )}
                 style={{ backgroundColor: tabColor(item) }}
                 aria-current={active ? "page" : undefined}
@@ -88,32 +88,7 @@ export function WordNotebook({
           })}
         </nav>
 
-        <div className="min-w-0 flex-1 rounded-2xl rounded-l-none bg-[#fffdf8] ring-1 ring-foreground/10 md:rounded-l-none md:rounded-r-2xl">
-          <div className="flex gap-1 overflow-x-auto px-3 py-3 md:hidden">
-            {ALPHABET.map((item) => {
-              const active = !searching && letter === item
-              const hasWords = lettersWithWords.has(item)
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => {
-                    setQuery("")
-                    setLetter(item)
-                  }}
-                  className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white",
-                    !hasWords && "opacity-40",
-                    active && "ring-2 ring-offset-1 ring-foreground/40",
-                  )}
-                  style={{ backgroundColor: tabColor(item) }}
-                >
-                  {item}
-                </button>
-              )
-            })}
-          </div>
-
+        <div className="min-w-0 flex-1 rounded-r-2xl bg-[#fffdf8] ring-1 ring-foreground/10">
           <div className="px-4 py-4 sm:px-6">
             <p className="text-sm font-medium text-muted-foreground">
               {searching
