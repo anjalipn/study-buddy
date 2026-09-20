@@ -19,7 +19,7 @@ export function StoreReady({ children }: { children: ReactNode }) {
         title="Could not open saved data"
         description={error ?? "Something went wrong while reading this device."}
         onRetry={() => window.location.reload()}
-        onReset={resetDevice}
+        onReset={() => void resetDevice()}
       />
     )
   }

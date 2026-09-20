@@ -87,7 +87,7 @@ export function WeeklyWordsPage({
                       </p>
                       <p className="mt-1 text-sm text-muted-foreground">
                         {week.cards.length === 0
-                          ? "No words added this week yet"
+                          ? "No words in this week yet"
                           : `${week.cards.length} word${week.cards.length === 1 ? "" : "s"}`}
                       </p>
                     </div>
@@ -111,43 +111,28 @@ export function WeeklyWordsPage({
                         ))}
                       </ul>
                     ) : null}
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      {week.cards.length === 0 ? (
-                        <>
-                          <Button className="h-12 flex-1 px-5 text-base" disabled>
-                            Revise
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="h-12 flex-1 px-5 text-base"
-                            disabled
+                    {week.cards.length > 0 ? (
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Button asChild className="h-12 flex-1 px-5 text-base">
+                          <Link
+                            href={`/kid/${kid.id}/weekly/${week.weekStart}/revise`}
                           >
-                            Quiz
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button asChild className="h-12 flex-1 px-5 text-base">
-                            <Link
-                              href={`/kid/${kid.id}/weekly/${week.weekStart}/revise`}
-                            >
-                              Revise this week
-                            </Link>
-                          </Button>
-                          <Button
-                            asChild
-                            variant="outline"
-                            className="h-12 flex-1 px-5 text-base"
+                            Revise this week
+                          </Link>
+                        </Button>
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="h-12 flex-1 px-5 text-base"
+                        >
+                          <Link
+                            href={`/kid/${kid.id}/weekly/${week.weekStart}/quiz`}
                           >
-                            <Link
-                              href={`/kid/${kid.id}/weekly/${week.weekStart}/quiz`}
-                            >
-                              Quiz this week
-                            </Link>
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                            Quiz this week
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : null}
                   </CardContent>
                 </Card>
               </li>

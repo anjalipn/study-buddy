@@ -42,6 +42,8 @@ export function ParentHome() {
     deleteSubject,
     setPin,
     resetDevice,
+    mode,
+    signOutDevice,
   } = useStore()
   const [kidDialog, setKidDialog] = useState<Kid | "new" | null>(null)
   const [subjectDialog, setSubjectDialog] = useState<Subject | "new" | null>(
@@ -54,7 +56,7 @@ export function ParentHome() {
   const [pendingPin, setPendingPin] = useState("")
   const [pinMessage, setPinMessage] = useState<string | null>(null)
 
-  function handlePin(next: string) {
+  async function handlePin(next: string) {
     setPinDigits(next)
     setPinMessage(null)
     if (!isPin(next)) return
@@ -71,11 +73,18 @@ export function ParentHome() {
       setPinStep("create")
       return
     }
-    setPin(next)
-    setPinStep("idle")
-    setPinDigits("")
-    setPendingPin("")
-    toast.success("Parent PIN updated")
+    try {
+      await setPin(next)
+      setPinStep("idle")
+      setPinDigits("")
+      setPendingPin("")
+      toast.success(mode === "db" ? "Family PIN updated" : "Parent PIN updated")
+    } catch (cause) {
+      setPinMessage(
+        cause instanceof Error ? cause.message : "Could not save that PIN.",
+      )
+      setPinDigits("")
+    }
   }
 
   return (
@@ -287,7 +296,7 @@ export function ParentHome() {
                     </p>
                     <PinPad
                       value={pinDigits}
-                      onChange={handlePin}
+                      onChange={(value) => void handlePin(value)}
                       ariaLabel="New parent PIN"
                     />
                     {pinMessage ? (
@@ -312,21 +321,58 @@ export function ParentHome() {
             </Card>
             <Card>
               <CardHeader>
+                <CardTitle>
+                  {mode === "db" ? "Shared database" : "This device"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {mode === "db"
+                    ? "Words, children, and progress are stored in Neon Postgres. This browser keeps a signed-in cookie after you enter the family PIN."
+                    : "This copy of Study Buddy is using this browser only. Add DATABASE_URL and SESSION_SECRET to share across devices."}
+                </p>
+                {mode === "db" ? (
+                  <Button
+                    variant="outline"
+                    className="h-12 px-5 text-base"
+                    onClick={() => {
+                      void signOutDevice().then(() => {
+                        toast.success("This device was signed out")
+                      })
+                    }}
+                  >
+                    Sign out this device
+                  </Button>
+                ) : null}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
                 <CardTitle>Reset this device</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm leading-6 text-muted-foreground">
-                  Clears the PIN, children, personal cards, and any edits. Year 1
-                  and Year 2 Maths and Reading decks are restored.
+                  {mode === "db"
+                    ? "Clears the shared PIN, children, personal cards, and edits for every device. Seeded decks come back."
+                    : "Clears the PIN, children, personal cards, and any edits. Year 1 and Year 2 Maths and Reading decks are restored."}
                 </p>
                 <ConfirmDelete
                   triggerLabel="Reset everything"
-                  title="Reset this device?"
-                  description="All local Study Buddy data on this browser will be replaced with the original seeded decks."
+                  title={mode === "db" ? "Reset the shared database?" : "Reset this device?"}
+                  description={
+                    mode === "db"
+                      ? "All Study Buddy data in Neon will be replaced with the original seeded decks. Every device will need the family PIN again."
+                      : "All local Study Buddy data on this browser will be replaced with the original seeded decks."
+                  }
                   confirmLabel="Reset"
                   onConfirm={() => {
-                    resetDevice()
-                    toast.success("This device was reset")
+                    void resetDevice().then(() => {
+                      toast.success(
+                        mode === "db"
+                          ? "The shared database was reset"
+                          : "This device was reset",
+                      )
+                    })
                   }}
                 />
               </CardContent>

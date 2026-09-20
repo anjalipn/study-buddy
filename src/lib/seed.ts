@@ -103,6 +103,7 @@ export function createSeedData(): AppData {
   return {
     version: 1,
     weekStartsOn: "sunday",
+    seedWordsMovedToThisWeek: true,
     pin: null,
     kids: [],
     subjects,

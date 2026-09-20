@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 import { ErrorScreen } from "@/components/error-screen"
@@ -17,6 +17,8 @@ export function ParentGate({ children }: { children: ReactNode }) {
     error,
     data,
     session,
+    mode,
+    authenticated,
     setPin,
     verifyPin,
     loginAdmin,
@@ -34,7 +36,11 @@ export function ParentGate({ children }: { children: ReactNode }) {
       ? "enter"
       : "create"
 
-  function handleDigits(next: string) {
+  useEffect(() => {
+    if (mode === "db" && authenticated) loginAdmin()
+  }, [authenticated, loginAdmin, mode])
+
+  async function handleDigits(next: string) {
     setDigits(next)
     setPinError(null)
     if (!isPin(next)) return
@@ -54,15 +60,22 @@ export function ParentGate({ children }: { children: ReactNode }) {
         setConfirming(false)
         return
       }
-      setPin(next)
-      loginAdmin()
-      setDigits("")
-      setPendingPin("")
-      setConfirming(false)
+      try {
+        await setPin(next)
+        loginAdmin()
+        setDigits("")
+        setPendingPin("")
+        setConfirming(false)
+      } catch (cause) {
+        setPinError(
+          cause instanceof Error ? cause.message : "Could not save that PIN.",
+        )
+        setDigits("")
+      }
       return
     }
 
-    if (verifyPin(next)) {
+    if (await verifyPin(next)) {
       loginAdmin()
       setDigits("")
       return
@@ -82,9 +95,16 @@ export function ParentGate({ children }: { children: ReactNode }) {
         title="Could not open saved data"
         description={error ?? "Something went wrong while reading this device."}
         onRetry={() => window.location.reload()}
-        onReset={resetDevice}
+        onReset={() => void resetDevice()}
       />
     )
+  }
+
+  if (mode === "db") {
+    if (!unlocked) {
+      return <LoadingScreen message="Opening parent settings…" />
+    }
+    return <>{children}</>
   }
 
   if (unlocked) {
@@ -112,7 +132,7 @@ export function ParentGate({ children }: { children: ReactNode }) {
       <p className="mt-3 mb-8 text-base leading-7 text-muted-foreground">
         {copy}
       </p>
-      <PinPad value={digits} onChange={handleDigits} ariaLabel={heading} />
+      <PinPad value={digits} onChange={(value) => void handleDigits(value)} ariaLabel={heading} />
       {pinError ? (
         <p className="mt-5 text-center text-sm text-destructive" role="alert">
           {pinError}
@@ -136,7 +156,7 @@ export function ParentGate({ children }: { children: ReactNode }) {
                   "This clears the PIN, children, and any extra cards on this device. Seeded Year 1 and Year 2 decks come back.",
                 )
               ) {
-                resetDevice()
+                void resetDevice()
                 setConfirming(false)
                 setDigits("")
                 setPendingPin("")

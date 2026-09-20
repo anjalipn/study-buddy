@@ -66,28 +66,33 @@ function mergeYear4Vocabulary(data: AppData): AppData {
     withAddedAt(card, addedNow),
   )
 
-  if (data.weekStartsOn !== "sunday") {
+  if (!data.seedWordsMovedToThisWeek) {
     cards = cards.map((card) =>
-      card.id.startsWith("word-y4-") || Boolean(card.word)
+      card.id.startsWith("word-y4-")
         ? { ...card, addedAt: addedNow }
         : card,
     )
   }
 
   for (const word of YEAR_4_VOCABULARY_CARDS) {
-    const seeded = { ...word, addedAt: addedNow }
     const index = cards.findIndex((card) => card.id === word.id)
     if (index === -1) {
-      cards.push(seeded)
+      cards.push({ ...word, addedAt: addedNow })
     } else if (cards[index].kidId === null) {
       cards[index] = {
-        ...seeded,
-        addedAt: cards[index].addedAt || seeded.addedAt,
+        ...word,
+        addedAt: cards[index].addedAt || addedNow,
       }
     }
   }
 
-  const next = { ...data, decks, cards, weekStartsOn: "sunday" as const }
+  const next = {
+    ...data,
+    decks,
+    cards,
+    weekStartsOn: "sunday" as const,
+    seedWordsMovedToThisWeek: true,
+  }
   window.localStorage.setItem(DATA_KEY, JSON.stringify(next))
   return next
 }
