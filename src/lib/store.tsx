@@ -20,7 +20,6 @@ import {
   loadSession,
   saveData,
   saveSession,
-  STORAGE_ERROR,
 } from "@/lib/storage"
 import type {
   AppData,
@@ -88,6 +87,13 @@ type StoreValue = {
   clearDeckProgress: (kidId: string, deckId: string) => void
 }
 
+type DatabaseHealth = {
+  database: boolean
+  hasDatabaseUrl: boolean
+  hasSessionSecret: boolean
+  connected: boolean | null
+}
+
 const StoreContext = createContext<StoreValue | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
@@ -134,8 +140,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     async function hydrate() {
       try {
-        const health = await api<{ database: boolean }>("/api/health")
+        const health = await api<DatabaseHealth>("/api/health")
         if (cancelled) return
+
+        const neonIntended = health.hasDatabaseUrl || health.hasSessionSecret
+        if (neonIntended && !health.database) {
+          setStatus("error")
+          setError(
+            health.hasDatabaseUrl && !health.hasSessionSecret
+              ? "Neon is linked, but SESSION_SECRET is missing. The app cannot use the database and will forget data on each new deploy. In Vercel → Settings → Environment Variables, add SESSION_SECRET (openssl rand -hex 32) for Production, then Redeploy."
+              : "SESSION_SECRET is set but no database URL was found. Add DATABASE_URL (or POSTGRES_URL from the Neon integration) on Production, then Redeploy.",
+          )
+          return
+        }
+        if (health.database && health.connected === false) {
+          setStatus("error")
+          setError(
+            "Database credentials are present but Neon could not be reached. In Vercel, use the Neon production/main branch connection string on the Production environment (not a Preview branch), then Redeploy.",
+          )
+          return
+        }
+
         if (!health.database) {
           const local = loadData()
           setMode("local")
@@ -165,18 +190,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setError(null)
       } catch (cause) {
         if (cancelled) return
-        try {
-          setMode("local")
-          setAuthenticated(true)
-          setData(loadData())
-          setSessionState(loadSession())
-          setHasPin(Boolean(loadData().pin))
-          setStatus("ready")
-          setError(null)
-        } catch {
-          setStatus("error")
-          setError(cause instanceof Error ? cause.message : STORAGE_ERROR)
-        }
+        setStatus("error")
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "Could not open the shared database.",
+        )
       }
     }
     void hydrate()

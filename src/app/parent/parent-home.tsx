@@ -329,7 +329,7 @@ export function ParentHome() {
                 <p className="text-sm leading-6 text-muted-foreground">
                   {mode === "db"
                     ? "Words, children, and progress are stored in Neon Postgres. This browser keeps a signed-in cookie after you enter the family PIN."
-                    : "This copy of Study Buddy is using this browser only. Add DATABASE_URL and SESSION_SECRET to share across devices."}
+                    : "This copy of Study Buddy is using this browser only. On Vercel, set DATABASE_URL and SESSION_SECRET on Production (not Preview only), then Redeploy."}
                 </p>
                 {mode === "db" ? (
                   <Button

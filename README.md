@@ -19,10 +19,10 @@ GitHub does not host a database. The small stack is: this Next.js app on Vercel,
 
 1. Create a GitHub repo for this project and import it on [Vercel](https://vercel.com).
 2. Create a project on [Neon](https://neon.tech) and copy the connection string.
-3. In Vercel → Project → Settings → Environment Variables, add:
-   - `DATABASE_URL` — Neon connection string
-   - `SESSION_SECRET` — a long random string (`openssl rand -hex 32`)
-4. Redeploy.
+3. In Vercel → Project → Settings → Environment Variables, add **both**, enabled for **Production** (not Preview only):
+   - `DATABASE_URL` — Neon **production/main** branch connection string (the Neon Vercel integration may also set `POSTGRES_URL`; either works)
+   - `SESSION_SECRET` — a long random string (`openssl rand -hex 32`). Neon does not create this; without it the app will not use the database.
+4. Redeploy the **Production** deployment. Open the production URL (`your-app.vercel.app`), not a unique preview URL (`your-app-git-….vercel.app`). Preview deploys can get a fresh empty Neon branch each time.
 
 The browser talks only to the Next.js API. Neon credentials stay on the server. After you set a four-digit **family PIN**, the API sets an httpOnly session cookie (90 days). Enter that PIN once on each device; children then just pick their name.
 

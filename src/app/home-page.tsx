@@ -13,7 +13,7 @@ import { useStore } from "@/lib/store"
 
 export function HomePage() {
   const router = useRouter()
-  const { data, loginKid } = useStore()
+  const { data, loginKid, mode } = useStore()
 
   return (
     <StoreReady>
@@ -26,6 +26,13 @@ export function HomePage() {
           Pick your name to open Year 1–4 flashcards. Parents use a PIN to add
           children and edit the shared decks.
         </p>
+        {mode === "local" ? (
+          <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+            This copy is using this browser only. Shared Neon storage is off
+            until DATABASE_URL and SESSION_SECRET are set on the Vercel
+            Production environment.
+          </p>
+        ) : null}
 
         {data.kids.length === 0 ? (
           <EmptyState

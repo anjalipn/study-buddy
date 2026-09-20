@@ -3,13 +3,58 @@ import { neon } from "@neondatabase/serverless"
 import { createSeedData } from "@/lib/seed"
 import type { AppData, Flashcard, ProgressEntry } from "@/lib/types"
 
+/** Neon/Vercel injects several names; prefer unpooled so transactions persist. */
+const DATABASE_URL_KEYS = [
+  "DATABASE_URL_UNPOOLED",
+  "POSTGRES_URL_NON_POOLING",
+  "DATABASE_URL",
+  "POSTGRES_URL",
+  "POSTGRES_PRISMA_URL",
+] as const
+
 function databaseUrl(): string | null {
-  const url = process.env.DATABASE_URL?.trim()
-  return url || null
+  for (const key of DATABASE_URL_KEYS) {
+    const value = process.env[key]?.trim()
+    if (value) return value
+  }
+  return null
+}
+
+export function hasDatabaseUrl(): boolean {
+  return Boolean(databaseUrl())
+}
+
+export function hasSessionSecret(): boolean {
+  return Boolean(process.env.SESSION_SECRET?.trim())
 }
 
 export function isDatabaseConfigured(): boolean {
-  return Boolean(databaseUrl() && process.env.SESSION_SECRET?.trim())
+  return hasDatabaseUrl() && hasSessionSecret()
+}
+
+export type DatabaseHealth = {
+  database: boolean
+  hasDatabaseUrl: boolean
+  hasSessionSecret: boolean
+  connected: boolean | null
+}
+
+export async function databaseHealth(): Promise<DatabaseHealth> {
+  const configured = isDatabaseConfigured()
+  const health: DatabaseHealth = {
+    database: configured,
+    hasDatabaseUrl: hasDatabaseUrl(),
+    hasSessionSecret: hasSessionSecret(),
+    connected: null,
+  }
+  if (!configured) return health
+  try {
+    await sql()`SELECT 1`
+    health.connected = true
+  } catch {
+    health.connected = false
+  }
+  return health
 }
 
 function sql() {
@@ -74,10 +119,7 @@ export async function ensureSchema(): Promise<void> {
   if (settings.length === 0) {
     await db`INSERT INTO settings (id) VALUES (1)`
   }
-  const subjects = await db`SELECT id FROM subjects LIMIT 1`
-  if (subjects.length === 0) {
-    await insertSnapshot(createSeedData())
-  }
+  await insertSeedIfEmpty()
   schemaReady = true
 }
 
@@ -183,6 +225,52 @@ export async function resetAppData(): Promise<void> {
   await db`DROP TABLE IF EXISTS subjects CASCADE`
   await db`DROP TABLE IF EXISTS settings CASCADE`
   await ensureSchema()
+}
+
+async function insertSeedIfEmpty(): Promise<void> {
+  const db = sql()
+  const [subjects, kids, cards, pin] = await Promise.all([
+    db`SELECT count(*)::int AS n FROM subjects`,
+    db`SELECT count(*)::int AS n FROM kids`,
+    db`SELECT count(*)::int AS n FROM cards`,
+    db`SELECT pin_hash FROM settings WHERE id = 1`,
+  ])
+  const empty =
+    Number(subjects[0]?.n ?? 0) === 0 &&
+    Number(kids[0]?.n ?? 0) === 0 &&
+    Number(cards[0]?.n ?? 0) === 0 &&
+    !pin[0]?.pin_hash
+  if (!empty) return
+
+  const seed = createSeedData()
+  const queries = [
+    ...seed.subjects.map(
+      (subject) =>
+        db`INSERT INTO subjects (id, name) VALUES (${subject.id}, ${subject.name})
+           ON CONFLICT (id) DO NOTHING`,
+    ),
+    ...seed.decks.map(
+      (deck) =>
+        db`INSERT INTO decks (id, subject_id, year, title)
+           VALUES (${deck.id}, ${deck.subjectId}, ${deck.year}, ${deck.title})
+           ON CONFLICT (id) DO NOTHING`,
+    ),
+    ...seed.cards.map(
+      (card) =>
+        db`INSERT INTO cards (id, deck_id, kid_id, front, back, word, added_at)
+           VALUES (
+             ${card.id},
+             ${card.deckId},
+             ${card.kidId},
+             ${card.front},
+             ${card.back},
+             ${JSON.stringify(card.word ?? null)}::jsonb,
+             ${card.addedAt}
+           )
+           ON CONFLICT (id) DO NOTHING`,
+    ),
+  ]
+  await db.transaction(queries)
 }
 
 async function insertSnapshot(data: AppData): Promise<void> {
