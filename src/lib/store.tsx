@@ -237,6 +237,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }))
       },
       addCard: ({ deckId, kidId, front, back, word }) => {
+        const now = new Date().toISOString()
         const card: Flashcard = {
           id: createId("card"),
           deckId,
@@ -244,6 +245,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           front,
           back,
           word,
+          addedAt: now,
         }
         update((current) => ({ ...current, cards: [...current.cards, card] }))
         return card
@@ -271,6 +273,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             front: input.term,
             back: formatWordBack(input.details),
             word: input.details,
+            addedAt: new Date().toISOString(),
           })
         }
         if (next.length > 0) {

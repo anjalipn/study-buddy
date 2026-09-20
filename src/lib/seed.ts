@@ -1,4 +1,5 @@
 import type { AppData, Flashcard } from "@/lib/types"
+import { seedVocabularyAddedAt } from "@/lib/weeks"
 import {
   YEAR_4_VOCABULARY_CARDS,
   YEAR_4_VOCAB_TITLE,
@@ -14,6 +15,7 @@ function yearCards(
     kidId: null,
     front,
     back,
+    addedAt: new Date().toISOString(),
   }))
 }
 
@@ -92,7 +94,10 @@ export function createSeedData(): AppData {
       ["many", "There are many books."],
       ["children", "The children lined up."],
     ]),
-    ...YEAR_4_VOCABULARY_CARDS,
+    ...YEAR_4_VOCABULARY_CARDS.map((card) => ({
+      ...card,
+      addedAt: seedVocabularyAddedAt(card.front),
+    })),
   ]
 
   return {

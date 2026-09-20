@@ -56,9 +56,24 @@ export function KidHomePage({
         actions={<AvatarBadge avatar={kid.avatar} size="md" />}
       >
         <p className="text-base leading-7 text-muted-foreground">
-          Choose a deck to practise. Year cards are shared; you can add extra
-          cards of your own.
+          Choose a deck to practise, or open weekly words to revise what was
+          added this week and in weeks before.
         </p>
+
+        <Card>
+          <CardContent className="flex flex-col gap-4 px-5 py-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-primary">Separate from decks</p>
+              <h2 className="font-heading text-xl font-semibold">Weekly words</h2>
+              <p className="text-sm text-muted-foreground">
+                Revise or quiz this week’s words, last week, and older weeks.
+              </p>
+            </div>
+            <Button asChild className="h-12 px-5 text-base">
+              <Link href={`/kid/${kid.id}/weekly`}>Open weekly words</Link>
+            </Button>
+          </CardContent>
+        </Card>
 
         {decks.length === 0 ? (
           <EmptyState

@@ -4,10 +4,12 @@ import { cn } from "@/lib/utils"
 export function VocabularyCard({
   term,
   word,
+  addedOn,
   className,
 }: {
   term: string
   word: WordDetails
+  addedOn?: string
   className?: string
 }) {
   return (
@@ -18,6 +20,9 @@ export function VocabularyCard({
       )}
     >
       <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">{term}</h2>
+      {addedOn ? (
+        <p className="mt-2 text-sm text-[#6b7280]">Added {addedOn}</p>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {word.partsOfSpeech.map((part) => (

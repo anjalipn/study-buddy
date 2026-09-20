@@ -10,12 +10,14 @@ export function FlipCard({
   front,
   back,
   word,
+  addedOn,
   flipped,
   onFlip,
 }: {
   front: string
   back: string
   word?: WordDetails
+  addedOn?: string
   flipped: boolean
   onFlip: () => void
 }) {
@@ -47,6 +49,11 @@ export function FlipCard({
             {word ? (
               <p className="text-center text-sm text-muted-foreground">
                 {word.partsOfSpeech.join(" · ")} · Level {word.level}
+                {addedOn ? ` · Added ${addedOn}` : ""}
+              </p>
+            ) : addedOn ? (
+              <p className="text-center text-sm text-muted-foreground">
+                Added {addedOn}
               </p>
             ) : null}
           </CardFace>
@@ -57,18 +64,25 @@ export function FlipCard({
             flush={Boolean(word)}
           >
             {word ? (
-              <VocabularyCard term={front} word={word} />
+              <VocabularyCard term={front} word={word} addedOn={addedOn} />
             ) : (
-              <p
-                className={cn(
-                  "flex flex-1 whitespace-pre-wrap",
-                  detailed
-                    ? "text-left text-base leading-6"
-                    : "items-center justify-center text-center font-heading text-3xl leading-snug font-semibold sm:text-4xl",
-                )}
-              >
-                {back}
-              </p>
+              <>
+                <p
+                  className={cn(
+                    "flex flex-1 whitespace-pre-wrap",
+                    detailed
+                      ? "text-left text-base leading-6"
+                      : "items-center justify-center text-center font-heading text-3xl leading-snug font-semibold sm:text-4xl",
+                  )}
+                >
+                  {back}
+                </p>
+                {addedOn ? (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Added {addedOn}
+                  </p>
+                ) : null}
+              </>
             )}
           </CardFace>
         </div>

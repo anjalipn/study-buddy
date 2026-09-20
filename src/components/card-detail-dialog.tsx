@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { formatAddedOn } from "@/lib/weeks"
 import type { Flashcard } from "@/lib/types"
 
 export function CardDetailDialog({
@@ -34,7 +35,11 @@ export function CardDetailDialog({
               <DialogDescription className="sr-only">
                 Full word card
               </DialogDescription>
-              <VocabularyCard term={card.front} word={card.word} />
+              <VocabularyCard
+                term={card.front}
+                word={card.word}
+                addedOn={formatAddedOn(card.addedAt)}
+              />
             </>
           ) : (
             <div className="px-6 py-8">
@@ -48,6 +53,9 @@ export function CardDetailDialog({
               </DialogHeader>
               <p className="mt-6 whitespace-pre-wrap text-lg leading-8">
                 {card.back}
+              </p>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Added {formatAddedOn(card.addedAt)}
               </p>
             </div>
           )

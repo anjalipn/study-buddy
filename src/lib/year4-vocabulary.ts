@@ -49,6 +49,7 @@ function wordCard(input: WordInput): Flashcard {
     front: input.word,
     back: formatWordBack(input.details),
     word: input.details,
+    addedAt: new Date().toISOString(),
   }
 }
 

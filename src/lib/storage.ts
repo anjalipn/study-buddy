@@ -1,5 +1,6 @@
 import { createSeedData } from "@/lib/seed"
-import type { AppData, Session } from "@/lib/types"
+import type { AppData, Flashcard, Session } from "@/lib/types"
+import { seedVocabularyAddedAt } from "@/lib/weeks"
 import {
   YEAR_4_VOCABULARY_CARDS,
   YEAR_4_VOCAB_DECK_ID,
@@ -48,6 +49,15 @@ export function loadData(): AppData {
   return mergeYear4Vocabulary(parsed)
 }
 
+function seedWordAddedAt(front: string): string {
+  return seedVocabularyAddedAt(front)
+}
+
+function withAddedAt(card: Flashcard, fallback: string): Flashcard {
+  if (typeof card.addedAt === "string" && card.addedAt) return card
+  return { ...card, addedAt: fallback }
+}
+
 function mergeYear4Vocabulary(data: AppData): AppData {
   const decks = data.decks.map((deck) =>
     deck.id === YEAR_4_VOCAB_DECK_ID
@@ -55,13 +65,21 @@ function mergeYear4Vocabulary(data: AppData): AppData {
       : deck,
   )
 
-  const cards = [...data.cards]
+  const cards = data.cards.map((card) =>
+    withAddedAt(
+      card,
+      card.id.startsWith("word-y4-")
+        ? seedWordAddedAt(card.front)
+        : new Date().toISOString(),
+    ),
+  )
   for (const word of YEAR_4_VOCABULARY_CARDS) {
+    const seeded = { ...word, addedAt: seedWordAddedAt(word.front) }
     const index = cards.findIndex((card) => card.id === word.id)
     if (index === -1) {
-      cards.push(word)
+      cards.push(seeded)
     } else if (cards[index].kidId === null) {
-      cards[index] = word
+      cards[index] = seeded
     }
   }
 

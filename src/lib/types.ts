@@ -56,6 +56,7 @@ export type Flashcard = {
   front: string
   back: string
   word?: WordDetails
+  addedAt: string
 }
 
 export type ProgressEntry = {
