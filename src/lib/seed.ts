@@ -96,12 +96,13 @@ export function createSeedData(): AppData {
     ]),
     ...YEAR_4_VOCABULARY_CARDS.map((card) => ({
       ...card,
-      addedAt: seedVocabularyAddedAt(card.front),
+      addedAt: seedVocabularyAddedAt(),
     })),
   ]
 
   return {
     version: 1,
+    weekStartsOn: "sunday",
     pin: null,
     kids: [],
     subjects,

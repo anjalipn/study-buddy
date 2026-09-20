@@ -49,10 +49,6 @@ export function loadData(): AppData {
   return mergeYear4Vocabulary(parsed)
 }
 
-function seedWordAddedAt(front: string): string {
-  return seedVocabularyAddedAt(front)
-}
-
 function withAddedAt(card: Flashcard, fallback: string): Flashcard {
   if (typeof card.addedAt === "string" && card.addedAt) return card
   return { ...card, addedAt: fallback }
@@ -65,25 +61,33 @@ function mergeYear4Vocabulary(data: AppData): AppData {
       : deck,
   )
 
-  const cards = data.cards.map((card) =>
-    withAddedAt(
-      card,
-      card.id.startsWith("word-y4-")
-        ? seedWordAddedAt(card.front)
-        : new Date().toISOString(),
-    ),
+  const addedNow = seedVocabularyAddedAt()
+  let cards = data.cards.map((card) =>
+    withAddedAt(card, addedNow),
   )
+
+  if (data.weekStartsOn !== "sunday") {
+    cards = cards.map((card) =>
+      card.id.startsWith("word-y4-") || Boolean(card.word)
+        ? { ...card, addedAt: addedNow }
+        : card,
+    )
+  }
+
   for (const word of YEAR_4_VOCABULARY_CARDS) {
-    const seeded = { ...word, addedAt: seedWordAddedAt(word.front) }
+    const seeded = { ...word, addedAt: addedNow }
     const index = cards.findIndex((card) => card.id === word.id)
     if (index === -1) {
       cards.push(seeded)
     } else if (cards[index].kidId === null) {
-      cards[index] = seeded
+      cards[index] = {
+        ...seeded,
+        addedAt: cards[index].addedAt || seeded.addedAt,
+      }
     }
   }
 
-  const next = { ...data, decks, cards }
+  const next = { ...data, decks, cards, weekStartsOn: "sunday" as const }
   window.localStorage.setItem(DATA_KEY, JSON.stringify(next))
   return next
 }

@@ -67,6 +67,7 @@ export type ProgressEntry = {
 
 export type AppData = {
   version: 1
+  weekStartsOn?: "sunday"
   pin: string | null
   kids: Kid[]
   subjects: Subject[]

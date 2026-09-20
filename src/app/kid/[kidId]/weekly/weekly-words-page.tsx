@@ -57,8 +57,9 @@ export function WeeklyWordsPage({
         backLabel="Decks"
       >
         <p className="text-base leading-7 text-muted-foreground">
-          Words are grouped by the week they were added, Monday to Sunday. Open
-          a word to read it, then revise or quiz that week.
+          Words are grouped by the week they were added, Sunday to Saturday. A
+          word added on any day in that range counts for that week. Open a word
+          to read it, then revise or quiz.
         </p>
 
         {words.length === 0 ? (

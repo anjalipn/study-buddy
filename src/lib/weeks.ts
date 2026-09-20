@@ -1,39 +1,37 @@
 import type { AppData, Flashcard, Kid } from "@/lib/types"
 import { sortByFront } from "@/lib/word-index"
 
-export function mondayOf(date: Date): Date {
+/** Week runs Sunday–Saturday. A word added any day in that range belongs to that week. */
+export function startOfWeek(date: Date): Date {
   const day = new Date(date)
   day.setHours(12, 0, 0, 0)
-  const weekday = day.getDay()
-  const offset = weekday === 0 ? -6 : 1 - weekday
-  day.setDate(day.getDate() + offset)
+  day.setDate(day.getDate() - day.getDay())
   day.setHours(0, 0, 0, 0)
   return day
 }
 
-export function seedVocabularyAddedAt(front: string, now = new Date()): string {
-  const weeksAgo = ["library", "mention"].includes(front.toLowerCase()) ? 2 : 1
-  return mondayWeeksAgo(weeksAgo, now).toISOString()
+export function seedVocabularyAddedAt(now = new Date()): string {
+  return now.toISOString()
 }
 
-export function mondayWeeksAgo(weeksAgo: number, now = new Date()): Date {
-  const monday = mondayOf(now)
-  monday.setDate(monday.getDate() - weeksAgo * 7)
-  return monday
+export function weeksAgo(count: number, now = new Date()): Date {
+  const start = startOfWeek(now)
+  start.setDate(start.getDate() - count * 7)
+  return start
 }
 
 export function weekId(value: Date | string): string {
   const date = typeof value === "string" ? new Date(value) : value
-  const monday = mondayOf(date)
-  const year = monday.getFullYear()
-  const month = String(monday.getMonth() + 1).padStart(2, "0")
-  const day = String(monday.getDate()).padStart(2, "0")
+  const start = startOfWeek(date)
+  const year = start.getFullYear()
+  const month = String(start.getMonth() + 1).padStart(2, "0")
+  const day = String(start.getDate()).padStart(2, "0")
   return `${year}-${month}-${day}`
 }
 
 export function weekLabel(id: string, now = new Date()): string {
   if (id === weekId(now)) return "This week"
-  if (id === weekId(mondayWeeksAgo(1, now))) return "Last week"
+  if (id === weekId(weeksAgo(1, now))) return "Last week"
   const start = new Date(`${id}T12:00:00`)
   const sameYear = start.getFullYear() === now.getFullYear()
   return `Week of ${start.toLocaleDateString("en-GB", {
@@ -63,6 +61,7 @@ export function weekRangeLabel(id: string): string {
 
 export function formatAddedOn(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", {
+    weekday: "short",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -100,7 +99,7 @@ export function weeklyWordLists(
   }
 
   const thisWeek = weekId(now)
-  const lastWeek = weekId(mondayWeeksAgo(1, now))
+  const lastWeek = weekId(weeksAgo(1, now))
   if (!groups.has(thisWeek)) groups.set(thisWeek, [])
   if (!groups.has(lastWeek)) groups.set(lastWeek, [])
 
